@@ -11,3 +11,11 @@ In the least-worst case, you end up with 2 releases. One has 4 artifacts and the
 We currently run `softprops/action-gh-release` once before all those artifact jobs to create an empty release for those 5 build jobs to add their output to. If the build was too quick, or cached, or added only no-op changelog files, we could end up with multiple, incorrect, separate releases as described above.
 
 This seems to happen because the GH API calls in `softprops/action-gh-release` to check whether a release already exists for the tag has a delay in when it begins to show that new releases exist. Creating a release through the GH API and then, afterwards, immediately querying for that release through the GH API would show that it does not yet exist. This causes the race condition in `softprops/action-gh-release`.
+
+## Without sleep, race condition exists
+![alt text](image.png)
+![alt text](image-2.png)
+
+## With sleep, race condition avoided
+![alt text](image-1.png)
+![alt text](image-3.png)
