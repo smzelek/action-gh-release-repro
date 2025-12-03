@@ -1,0 +1,41 @@
+name: run-release-HAS-race-condition
+
+on:
+  push:
+    tags:
+      - "HAS-race-**"
+
+permissions:
+  contents: write
+  id-token: write
+
+jobs:
+  run-release-HAS-race-condition:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.ACTIONS_TOKEN }}
+
+      - run: |
+          echo "hello" > hello.txt
+          echo "world" > world.txt
+
+      - name: create-release-WITHOUT-waiting
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            hello.txt
+          draft: true
+          token: ${{ secrets.ACTIONS_TOKEN  }}
+          fail_on_unmatched_files: false
+
+      - name: creates-a-second-release-due-to-race
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            world.txt
+          draft: true
+          token: ${{ secrets.ACTIONS_TOKEN }}
+          fail_on_unmatched_files: true

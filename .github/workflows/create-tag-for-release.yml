@@ -1,0 +1,30 @@
+name: create-tag-for-release
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  id-token: write
+
+jobs:
+  create-tag-for-release:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.ACTIONS_TOKEN }}
+      - run: |
+          git config user.name "versioning-tool"
+          git config user.email "noop@github.com"
+
+          create_and_push_tag() {
+            local tag="$1"
+            local message="$2"
+            echo "Creating tag: $tag"
+            git tag -fa "$tag" -m "$message"
+            git push origin "$tag" --force
+          }
+          create_and_push_tag "HAS-race-${{ github.run_id }}" "HAS-race-${{ github.run_id }}"
+          create_and_push_tag "NO-race-${{ github.run_id }}" "NO-race-${{ github.run_id }}"
